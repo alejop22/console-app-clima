@@ -1,19 +1,71 @@
 const axios = require('axios');
 
+const { MAPBOX_KEY, OPENWEATHER_KEY } = process.env;
 class Busquedas {
 
     constructor() {
 
     }
 
-    async ciudad(lugar) {
-        try {
-            const response = await axios.get('https://api.mapbox.com/geocoding/v5/mapbox.places/santa%20rosa%20de%20osos.json?language=es&limit=5&access_token=pk.eyJ1IjoiYWxlam9wcDA2IiwiYSI6ImNsNm1sN3NvMTBteW0zZG4wc3Z5ZWRqOHoifQ.b_0k9dbc6BoaRmMhjI4NVg')
+    get paramsMapbox() {
+        return {
+            'language': 'es',
+            'limit': 5,
+            'access_token': MAPBOX_KEY
+        }
+    }
 
-            console.log(response.data);
+    async ciudades(lugar) {
+        try {
+
+            const instance = axios.create({
+                baseURL: `https://api.mapbox.com/geocoding/v5/mapbox.places/${lugar}.json`,
+                params: this.paramsMapbox,
+            });
+
+            const resp = await instance.get();
+
+            return resp.data.features.map(lugar => ({
+                id: lugar.id,
+                nombre: lugar.place_name,
+                lon: lugar.center[0],
+                lat: lugar.center[1]
+            }));
+
         } catch (error) {
             return [];
         }
+    }
+
+    async detalleCiudad(lat, lon) {
+
+        try {
+            const instance = axios.create({
+                baseURL: 'https://api.openweathermap.org/data/2.5/weather',
+                params: {
+                    'lat': lat,
+                    'lon': lon,
+                    'appid': OPENWEATHER_KEY,
+                    'units': 'metric',
+                    'lang': 'es'
+                }
+            });
+
+            const resp = await instance.get();
+
+            const { weather, main } = resp.data;
+
+            return {
+                descripcion: weather[0].description,
+                temp: main.temp,
+                temp_min: main.temp_min,
+                temp_max: main.temp_max
+            }
+
+        } catch (error) {
+            
+        }
+
     }
 }
 
