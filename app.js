@@ -9,6 +9,9 @@ const main = async() => {
 
     let opt = '';
     do {
+
+        const historial = busquedas.leerHistorial();
+
         opt = await inquirerMenu();
 
         switch (opt) {
@@ -19,8 +22,12 @@ const main = async() => {
 
                 const id = await listarLugares(lugares);
 
+                if (id === '0') continue;
+                
                 const {nombre, lon, lat } = lugares.find(lugar => lugar.id === id);
                 
+                busquedas.guardarHistorial(nombre, historial);
+
                 const {descripcion, temp, temp_min, temp_max} = await busquedas.detalleCiudad(lat,lon);
                 
                 console.clear();
@@ -35,7 +42,7 @@ const main = async() => {
 
                 break;
             case 2:
-                
+                busquedas.mostrarHistorial(historial);
                 break;
         }
 

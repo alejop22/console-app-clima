@@ -87,6 +87,7 @@ const listarLugares = async(lugares) => {
     return id;
 }
 
+
 const confirmar = async(message) => {
     
     const ok = await inquirer.prompt([

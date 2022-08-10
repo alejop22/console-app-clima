@@ -1,6 +1,10 @@
 const axios = require('axios');
+const fs = require('fs');
+require('colors');
 
 const { MAPBOX_KEY, OPENWEATHER_KEY } = process.env;
+const db = './db/historial.json';
+
 class Busquedas {
 
     constructor() {
@@ -66,6 +70,37 @@ class Busquedas {
             
         }
 
+    }
+
+    guardarHistorial(nombre, historial) {
+
+        if (historial.includes(nombre)) return
+
+        if (historial.length >= 5) historial.pop();
+
+        historial.unshift(nombre);
+
+        fs.writeFileSync(db,JSON.stringify(historial));
+    }
+
+    leerHistorial() {
+        if (fs.existsSync(db)) {
+            const historial = JSON.parse(fs.readFileSync(db,{encoding: 'utf8'}));
+            return historial;
+        }
+
+        return [];
+    }
+
+    mostrarHistorial(historial) {
+        console.clear();
+        console.log('Historial de busqueda\n'.green);
+        let cont = 0;
+        historial.forEach(ciudad => {
+            cont++
+            console.log(`${(cont+'.').green} ${ciudad}`);
+        });
+        console.log();
     }
 }
 
